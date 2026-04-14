@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify, render_template, session, redirect, u
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import random, string, os, requests
-from twilio.rest import Client
 from flask_mail import Mail, Message
 import logging
 
@@ -15,18 +14,16 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 #  CONFIGURE YOUR API KEYS (Use Render Environment Variables)
 # ════════════════════════════════════════════════════════════
 
-# Twilio SMS Configuration
-TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID', '')
-TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', '')
-TWILIO_PHONE = os.environ.get('TWILIO_PHONE', '')  # Your Twilio phone number
+# Fast2SMS Configuration
+FAST2SMS_API_KEY = os.environ.get('ul3BrZHMy5KtqXQd1DNbQNEZIQoqS3eMpUB0lSv4TYhlA4ezGf5psRi8jz7v', '')
 
 # Email Configuration (Gmail / SendGrid / etc)
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'True') == 'True'
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', '')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', '')  # Gmail App Password
-app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@rrnchecker.com')
+app.config['MAIL_USERNAME'] = os.environ.get('2303A51939@sru.edu.in', '')
+app.config['MAIL_PASSWORD'] = os.environ.get('gfcsyjhczrgldtfz', '')  # Gmail App Password
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('2303A51939@sru.edu.in', 'noreply@rrnchecker.com')
 
 # Anthropic API
 ANTHROPIC_KEY = os.environ.get('ANTHROPIC_KEY', '')
@@ -111,22 +108,32 @@ BANKS = [
 # ─── OTP ─────────────────────────────────────────────────────
 
 def send_otp_sms(mobile, otp):
-    """Send OTP via Twilio SMS. Returns (success_bool, message_str)"""
+    """Send OTP via Fast2SMS. Returns (success_bool, message_str)"""
     try:
-        if not (TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN and TWILIO_PHONE):
-            logger.warning("Twilio credentials not configured")
+        if not FAST2SMS_API_KEY:
+            logger.warning("Fast2SMS API key not configured")
             return False, "SMS service not configured"
-        
-        client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-        message = client.messages.create(
-            body=f"Your RRN Checker OTP is: {otp}. Valid for 5 minutes. Do not share.",
-            from_=TWILIO_PHONE,
-            to=f"+91{mobile}"
+
+        response = requests.post(
+            "https://www.fast2sms.com/dev/bulkV2",
+            headers={"authorization": FAST2SMS_API_KEY},
+            data={
+                "route": "otp",
+                "variables_values": otp,
+                "flash": 0,
+                "numbers": mobile,
+            },
+            timeout=10
         )
-        logger.info(f"SMS sent to {mobile}: {message.sid}")
-        return True, "OTP sent via SMS"
+        result = response.json()
+        if result.get("return"):
+            logger.info(f"SMS sent to {mobile} via Fast2SMS")
+            return True, "OTP sent via SMS"
+        else:
+            logger.error(f"Fast2SMS error: {result}")
+            return False, result.get("message", ["SMS sending failed"])[0]
     except Exception as e:
-        logger.error(f"Twilio SMS error: {e}")
+        logger.error(f"Fast2SMS SMS error: {e}")
         return False, str(e)
 
 def send_otp_email(email, otp, name="User"):
