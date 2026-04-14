@@ -114,24 +114,31 @@ def send_otp_sms(mobile, otp):
             logger.warning("Fast2SMS API key not configured")
             return False, "SMS service not configured"
 
-        response = requests.post(
-            "https://www.fast2sms.com/dev/bulkV2",
-            headers={"authorization": FAST2SMS_API_KEY},
-            data={
-                "route": "otp",
-                "variables_values": otp,
-                "flash": 0,
-                "numbers": mobile,
-            },
-            timeout=10
-        )
+        url = "https://www.fast2sms.com/dev/bulkV2"
+        payload = {
+            "route": "otp",
+            "variables_values": otp,
+            "numbers": mobile,
+        }
+        headers = {
+            "authorization": FAST2SMS_API_KEY,
+            "Content-Type": "application/x-www-form-urlencoded",
+            "cache-control": "no-cache",
+        }
+
+        response = requests.post(url, data=payload, headers=headers, timeout=10)
         result = response.json()
-        if result.get("return"):
-            logger.info(f"SMS sent to {mobile} via Fast2SMS")
+
+        logger.info(f"Fast2SMS response: {result}")
+
+        if result.get("return") is True:
             return True, "OTP sent via SMS"
         else:
-            logger.error(f"Fast2SMS error: {result}")
-            return False, result.get("message", ["SMS sending failed"])[0]
+            message = result.get("message")
+            if isinstance(message, list):
+                message = message[0]
+            return False, message or "SMS sending failed"
+
     except Exception as e:
         logger.error(f"Fast2SMS SMS error: {e}")
         return False, str(e)
