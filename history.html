@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>History · RRN Checker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#eef2ff;--wh:#fff;--pri:#1a56db;--txt:#111827;--mut:#6b7280;--bdr:#e5e7eb;--grn:#16a34a;--gbg:#dcfce7;--ylw:#d97706;--ybg:#fef9c3;--red:#dc2626;--rbg:#fee2e2;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);}
+nav{background:var(--wh);border-bottom:1px solid var(--bdr);padding:13px 24px;display:flex;align-items:center;justify-content:space-between;}
+.nb{display:flex;align-items:center;gap:10px;}
+.ni{width:36px;height:36px;background:var(--pri);border-radius:10px;display:grid;place-items:center;font-size:18px;}
+.nt{font-size:17px;font-weight:700;}
+nav a{font-size:13px;color:var(--mut);text-decoration:none;font-weight:500;}
+nav a:hover{color:var(--pri);}
+.wrap{max-width:800px;margin:0 auto;padding:30px 20px;}
+h1{font-size:22px;font-weight:700;margin-bottom:5px;}
+.sub{font-size:14px;color:var(--mut);margin-bottom:22px;}
+.item{background:var(--wh);border:1px solid var(--bdr);border-radius:12px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.lft{display:flex;flex-direction:column;gap:3px;}
+.rrn{font-family:'DM Mono',monospace;font-size:15px;font-weight:700;}
+.meta{font-size:12px;color:var(--mut);}
+.rgt{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+.pill{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.ps{background:var(--gbg);color:var(--grn);}
+.pp{background:var(--ybg);color:var(--ylw);}
+.pf{background:var(--rbg);color:var(--red);}
+.amt{font-size:14px;font-weight:700;font-family:'DM Mono',monospace;}
+.empty{text-align:center;padding:60px;color:var(--mut);}
+.eic{font-size:44px;margin-bottom:10px;}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nb"><div class="ni">🏦</div><span class="nt">RRN Checker</span></div>
+  <div style="display:flex;gap:14px;align-items:center">
+    <a href="/">← Back</a>
+    <a href="/logout" style="color:var(--red)">Logout</a>
+  </div>
+</nav>
+<div class="wrap">
+  <h1>📋 Search History</h1>
+  <p class="sub">Your last 20 RRN searches · {{mobile}}</p>
+  {% if txns %}
+    {% for t in txns %}
+    <div class="item">
+      <div class="lft">
+        <div class="rrn">{{ t.rrn }}</div>
+        <div class="meta">{{ t.app_name }} · {{ t.merchant }} · {{ t.bank }}</div>
+        <div class="meta">{{ t.searched_at.strftime('%d %b %Y, %I:%M %p') }}</div>
+      </div>
+      <div class="rgt">
+        <span class="pill {% if t.status=='success' %}ps{% elif t.status=='pending' %}pp{% else %}pf{% endif %}">{{ t.status.upper() }}</span>
+        <span class="amt">₹{{ "%.2f"|format(t.amount) }}</span>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty"><div class="eic">🔍</div><div>No searches yet. Go check an RRN!</div></div>
+  {% endif %}
+</div>
+</body>
+</html>
