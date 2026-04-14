@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Admin Dashboard · RRN Checker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#eef2ff;--wh:#fff;--pri:#1a56db;--txt:#111827;--mut:#6b7280;--bdr:#e5e7eb;--grn:#16a34a;--gbg:#dcfce7;--ylw:#d97706;--ybg:#fef9c3;--red:#dc2626;--rbg:#fee2e2;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);}
+nav{background:var(--wh);border-bottom:1px solid var(--bdr);padding:13px 24px;display:flex;align-items:center;justify-content:space-between;}
+.nb{display:flex;align-items:center;gap:10px;}
+.ni{width:36px;height:36px;background:var(--pri);border-radius:10px;display:grid;place-items:center;font-size:18px;}
+.nt{font-size:17px;font-weight:700;}
+nav a{font-size:13px;color:var(--mut);text-decoration:none;font-weight:500;}
+.wrap{max-width:1000px;margin:0 auto;padding:30px 20px 60px;}
+h1{font-size:22px;font-weight:700;margin-bottom:22px;}
+.sgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:28px;}
+.sc{background:var(--wh);border:1px solid var(--bdr);border-radius:12px;padding:14px;text-align:center;}
+.sn{font-size:28px;font-weight:700;}
+.sl{font-size:11px;color:var(--mut);margin-top:3px;}
+.sc.g{border-color:#bbf7d0;}.sc.g .sn{color:var(--grn);}
+.sc.y{border-color:#fde68a;}.sc.y .sn{color:var(--ylw);}
+.sc.r{border-color:#fecaca;}.sc.r .sn{color:var(--red);}
+.ttl{font-size:15px;font-weight:700;margin-bottom:10px;}
+.tw{background:var(--wh);border-radius:14px;border:1px solid var(--bdr);overflow:hidden;margin-bottom:26px;}
+table{width:100%;border-collapse:collapse;}
+th{background:#f9fafb;padding:11px 14px;font-size:11px;color:var(--mut);text-align:left;font-weight:600;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--bdr);}
+td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--bdr);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#f9fafb;}
+.mono{font-family:'DM Mono',monospace;}
+.pill{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;}
+.ps{background:var(--gbg);color:var(--grn);}
+.pp{background:var(--ybg);color:var(--ylw);}
+.pf{background:var(--rbg);color:var(--red);}
+@media(max-width:640px){.sgrid{grid-template-columns:repeat(2,1fr);}table{font-size:11px;}th,td{padding:8px 10px;}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nb"><div class="ni">⚙️</div><span class="nt">Admin Dashboard</span></div>
+  <a href="/">← Back to App</a>
+</nav>
+<div class="wrap">
+  <h1>📊 Admin Panel · Karthik</h1>
+  <div class="sgrid">
+    <div class="sc"><div class="sn">{{stats.users}}</div><div class="sl">Total Users</div></div>
+    <div class="sc"><div class="sn">{{stats.total}}</div><div class="sl">Searches</div></div>
+    <div class="sc g"><div class="sn">{{stats.success}}</div><div class="sl">Success</div></div>
+    <div class="sc y"><div class="sn">{{stats.pending}}</div><div class="sl">Pending</div></div>
+    <div class="sc r"><div class="sn">{{stats.failed}}</div><div class="sl">Failed</div></div>
+  </div>
+
+  <div class="ttl">👥 Registered Users</div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>#</th><th>Mobile</th><th>Name</th><th>Searches</th><th>Joined</th></tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{u.id}}</td>
+          <td class="mono">{{u.mobile}}</td>
+          <td>{{u.name}}</td>
+          <td>{{u.searches|length}}</td>
+          <td style="color:var(--mut)">{{u.created.strftime('%d %b %Y')}}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" style="text-align:center;color:var(--mut);padding:20px">No users yet</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ttl">💳 Recent Transactions</div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>RRN</th><th>App</th><th>Merchant</th><th>Amount</th><th>Status</th><th>Time</th></tr></thead>
+      <tbody>
+        {% for t in txns %}
+        <tr>
+          <td class="mono">{{t.rrn}}</td>
+          <td>{{t.app_name}}</td>
+          <td>{{t.merchant}}</td>
+          <td class="mono">₹{{"%.2f"|format(t.amount)}}</td>
+          <td><span class="pill {% if t.status=='success' %}ps{% elif t.status=='pending' %}pp{% else %}pf{% endif %}">{{t.status.upper()}}</span></td>
+          <td style="color:var(--mut);font-size:11px">{{t.searched_at.strftime('%d %b %Y %I:%M %p')}}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" style="text-align:center;color:var(--mut);padding:20px">No transactions yet</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>
