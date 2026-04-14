@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Admin Login · RRN Checker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#eef2ff;--wh:#fff;--pri:#1a56db;--txt:#111827;--mut:#6b7280;--bdr:#e5e7eb;--red:#dc2626;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;}
+.card{background:var(--wh);border-radius:20px;padding:36px;width:100%;max-width:360px;box-shadow:0 4px 24px rgba(0,0,0,.08);text-align:center;}
+.ic{font-size:40px;margin-bottom:14px;}
+h2{font-size:22px;font-weight:700;margin-bottom:5px;}
+p{font-size:14px;color:var(--mut);margin-bottom:22px;}
+input{width:100%;padding:13px 16px;border:1.5px solid var(--bdr);border-radius:12px;font-size:15px;outline:none;margin-bottom:14px;}
+input:focus{border-color:var(--pri);}
+.btn{width:100%;padding:13px;background:var(--pri);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;}
+.btn:hover{opacity:.9;}
+.err{background:#fee2e2;color:var(--red);padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;}
+a{color:var(--mut);font-size:13px;text-decoration:none;display:block;margin-top:14px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="ic">⚙️</div>
+  <h2>Admin Panel</h2>
+  <p>Karthik · SR University · RRN Checker</p>
+  {% if error %}<div class="err">{{ error }}</div>{% endif %}
+  <form method="POST">
+    <input type="password" name="password" placeholder="Admin password" autofocus/>
+    <button class="btn" type="submit">Login to Admin</button>
+  </form>
+  <a href="/">← Back to App</a>
+</div>
+</body>
+</html>
