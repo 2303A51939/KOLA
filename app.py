@@ -1,7 +1,11 @@
-from flask import Flask
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from flask_mail import Mail
+from flask_mail import Mail, Message
+from datetime import datetime, timedelta
+import random
+import string
 import os
+import requests
 import logging
 
 app = Flask(__name__)
@@ -26,10 +30,12 @@ app.config['MAIL_DEFAULT_SENDER'] = os.environ.get(
     app.config['MAIL_USERNAME']
 )
 
-# Fast2SMS API Key
+# API Keys
 FAST2SMS_API_KEY = os.environ.get('FAST2SMS_API_KEY', '')
+ANTHROPIC_KEY = os.environ.get('ANTHROPIC_KEY', '')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
 
-# Initialize extensions (ONLY ONCE)
+# Initialize extensions
 db = SQLAlchemy(app)
 mail = Mail(app)
 
