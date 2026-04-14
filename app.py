@@ -1,47 +1,41 @@
-from flask import Flask, request, jsonify, render_template, session, redirect, url_for
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime, timedelta
-import random, string, os, requests
-from flask_mail import Mail, Message
+from flask_mail import Mail
+import os
 import logging
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'karthik_rrn_sru_2024_change_in_prod')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///karthik_rrn.db')
+app.secret_key = os.environ.get('SECRET_KEY', 'change_this_in_production')
+
+# Database configuration
+database_url = os.environ.get('DATABASE_URL', 'sqlite:///karthik_rrn.db')
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# ════════════════════════════════════════════════════════════
-#  CONFIGURE YOUR API KEYS (Use Render Environment Variables)
-# ════════════════════════════════════════════════════════════
-
-# Fast2SMS Configuration
-FAST2SMS_API_KEY = os.environ.get('ul3BrZHMy5KtqXQd1DNbQNEZIQoqS3eMpUB0lSv4TYhlA4ezGf5psRi8jz7v', '')
-
-# Email Configuration (Gmail / SendGrid / etc)
+# Email configuration
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'True') == 'True'
-app.config['MAIL_USERNAME'] = os.environ.get('2303A51939@sru.edu.in', '')
-app.config['MAIL_PASSWORD'] = os.environ.get('gfcsyjhczrgldtfz', '')  # Gmail App Password
-app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('2303A51939@sru.edu.in', 'noreply@rrnchecker.com')
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', '')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', '')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get(
+    'MAIL_DEFAULT_SENDER',
+    app.config['MAIL_USERNAME']
+)
 
-# Anthropic API
-ANTHROPIC_KEY = os.environ.get('ANTHROPIC_KEY', '')
+# Fast2SMS API Key
+FAST2SMS_API_KEY = os.environ.get('FAST2SMS_API_KEY', '')
 
-# Admin Password
-ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'karthik@admin2024')
-
-# Initialize Extensions
+# Initialize extensions (ONLY ONCE)
 db = SQLAlchemy(app)
 mail = Mail(app)
 
 # Logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# ════════════════════════════════════════════════════════════
-
-db = SQLAlchemy(app)
 
 # ─── DATABASE MODELS ─────────────────────────────────────────
 
